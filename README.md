@@ -23,6 +23,12 @@ This resource was created for servers to connect their Tebex stores to their Fiv
  - Add `purchase_package_tebex {"transid":"{transaction}", "packagename":"{packageName}"}` as the command
  - Press the settings icon on the right and change the command to `Execute the command even if the player is offline`
  - Press Update
+
+## Usage
+
+- Players must go ingame and do `/redeem [Transaction ID]` and they will recieve everything
+
+
 ## Extra Information
  Please leave any issues you may have here on github
 
