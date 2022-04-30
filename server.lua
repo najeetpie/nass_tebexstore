@@ -1,4 +1,4 @@
-Config.DiscordWebhook = 'https://discord.com/api/webhooks/945054621951488070/ZZffclJOb8IQdmbpR-BulXxQKsJ1zKXUlfhliAKSdZDDi1PL-Ev6hHtu6M_X_QSBctoJ'
+DiscordWebhook = 'https://discord.com/api/webhooks/945054621951488070/ZZffclJOb8IQdmbpR-BulXxQKsJ1zKXUlfhliAKSdZDDi1PL-Ev6hHtu6M_X_QSBctoJ'
 
 ESX = nil 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end) 
@@ -61,13 +61,10 @@ end)
 
 RegisterCommand('purchase_package_tebex', function(source, args)
 	if source == 0 then
-		local tbxid = args[1]
-		local packagename = args[2]
-		for i=3,10 do 
-			if args[i] then
-				packagename = packagename..' '..args[i]
-			end
-		end
+		local dec = json.decode(args[1])
+		local tbxid = dec.transid
+		print(tbxid)
+		local packagename = dec.packagename
 		MySQL.Async.execute("INSERT INTO codes(code,packagename,amount) VALUES (@code,@packagename,@amount)", {
 			["@code"] = tbxid,
 			["@packagename"] = packagename,
