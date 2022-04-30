@@ -1,7 +1,7 @@
 # nass_tebexstore
 This resource was created for servers to connect their Tebex stores to their FiveM Servers
 
-<b>Features:</b>
+## Features:
 - Store Automation
 - Ability to add Items, Cars, and Weapons
 - Logs to discord
@@ -23,7 +23,7 @@ This resource was created for servers to connect their Tebex stores to their Fiv
  - Add `purchase_package_tebex {"transid":"{transaction}", "packagename":"{packageName}"}` as the command
  - Press the settings icon on the right and change the command to `Execute the command even if the player is offline`
  - Press Update
-### Extra Information
+## Extra Information
  Please leave any issues you may have here on github
 
 # Support
