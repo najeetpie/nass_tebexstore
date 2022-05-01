@@ -1,4 +1,4 @@
-DiscordWebhook = 'https://discord.com/api/webhooks/945054621951488070/ZZffclJOb8IQdmbpR-BulXxQKsJ1zKXUlfhliAKSdZDDi1PL-Ev6hHtu6M_X_QSBctoJ'
+DiscordWebhook = 'CHANGE_WEBHOOK'
 
 ESX = nil 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end) 
@@ -124,17 +124,21 @@ local DISCORD_NAME = "nass_tebexstore"
 local DISCORD_IMAGE = "https://i.imgur.com/Q72RWcB.png"
 
 function SendToDiscord(name, message, color)
-	local connect = {
-		  {
-			  ["color"] = color,
-			  ["title"] = "**".. name .."**",
-			  ["description"] = message,
-			  ["footer"] = {
-			  ["text"] = "Nass Tebexstore",
-			  },
-		  }
-	  }
-	PerformHttpRequest(Config.DiscordWebhook, function(err, text, headers) end, 'POST', json.encode({username = DISCORD_NAME, embeds = connect, avatarrl = DISCORD_IMAGE}), { ['Content-Type'] = 'application/json' })
+	if DiscordWebhook == "CHANGE_WEBHOOK" then
+		print("PLEASE CHANGE SERVER SIDE WEBHOOK")
+	else
+		local connect = {
+		  	{
+			  	["color"] = color,
+			  	["title"] = "**".. name .."**",
+			  	["description"] = message,
+			  	["footer"] = {
+			  	["text"] = "Nass Tebexstore",
+			  	},
+		 	 }
+	  	}
+		PerformHttpRequest(DiscordWebhook, function(err, text, headers) end, 'POST', json.encode({username = DISCORD_NAME, embeds = connect, avatarrl = DISCORD_IMAGE}), { ['Content-Type'] = 'application/json' })
+	end
 end
 
 
