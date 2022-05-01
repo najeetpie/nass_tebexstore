@@ -15,7 +15,7 @@ This resource was created for servers to connect their Tebex stores to their Fiv
 
 
 - Import `codes.sql` to your database.
-- Add `ensure wasabi_mining` in your `server.cfg`
+- Add `ensure nass_tebexstore` in your `server.cfg`
 
  - In Tebex, go to the package you would like to add
  - Add a game server command to your server of choice
