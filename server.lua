@@ -94,8 +94,9 @@ elseif Config.Framework == "QB" then
 end
 
 
-if Config.Framework == "ESX" then
-	RegisterCommand('redeem', function(source, args, rawCommand)
+
+RegisterCommand('redeem', function(source, args, rawCommand)
+	if Config.Framework == "ESX" then
 		local encode = rawCommand:sub(8)
 		local xPlayer = ESX.GetPlayerFromId(source)
 		local xName = xPlayer.getName()
@@ -130,15 +131,10 @@ if Config.Framework == "ESX" then
 				TriggerClientEvent('nass_tebexstore:notify', source, "You have entered an invalid code")
 			end
 		end)
-	
-	end)
-elseif Config.Framework == "QB" then
-	RegisterCommand('redeem', function(source, args, rawCommand)
+	elseif Config.Framework == "QB" then
 		local encode = rawCommand:sub(8)
 		local player = QBCore.Functions.GetPlayer(source)
 		if player then
-			
-
 			MySQL.Async.fetchAll('SELECT * FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result)
 				if result[1] then
 					local packagename = result[1].packagename
@@ -148,8 +144,6 @@ elseif Config.Framework == "QB" then
 								local counter = v.Items[i]
 								if counter.type == 'item' or counter.type == 'weapon' then
 									player.Functions.AddItem(counter.name, counter.amount)
-								--elseif counter.type == 'weapon' then
-									xPlayer.addWeapon(counter.name, counter.amount)
 								elseif counter.type == 'account' then
 									player.Functions.AddMoney(counter.name, counter.amount, "server-donation")
 								elseif counter.type == 'car' then
@@ -171,8 +165,8 @@ elseif Config.Framework == "QB" then
 				end
 			end)
 		end
-	end)
-end
+	end
+end)
 
 
 
