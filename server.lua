@@ -3,10 +3,11 @@ DiscordWebhook = 'CHANGE_WEBHOOK'
 local redeemedCars = {}
 
 ESX = nil
+QBCore = nil
 if Config.Framework == "ESX" then
 	TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end) 
 elseif Config.Framework == "QB" then
-	local QBCore = exports['qb-core']:GetCoreObject()
+	QBCore = exports['qb-core']:GetCoreObject()
 else
 	TriggerEvent("nass_tebexstore:notify", "nass_tebexstore: Framework in config is not set correctly. ")
 end

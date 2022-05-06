@@ -1,5 +1,5 @@
 ESX = nil
-
+QBCore = nil
 Citizen.CreateThread(function()
 	if Config.Framework == "ESX" then
 		while ESX == nil do
@@ -7,7 +7,7 @@ Citizen.CreateThread(function()
 			Citizen.Wait(0)
 		end
 	elseif Config.Framework == "QB" then
-		local QBCore = exports['qb-core']:GetCoreObject()
+		QBCore = exports['qb-core']:GetCoreObject()
 	else
 		TriggerEvent("nass_tebexstore:notify", "nass_tebexstore: Framework in config is not set correctly. ")
 	end
