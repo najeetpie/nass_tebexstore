@@ -99,7 +99,7 @@ AddEventHandler('nass_tebexstore:spawnveh', function(model)
 						vehicleProps.plate = newPlate
 						TriggerServerEvent('nass_tebexstore:setVehicle', vehicleProps)
 						QBCore.Functions.DeleteVehicle(vehicle)	
-				end, vector3(0.0, 0.0, -10.0), false)
+				end, vector4(0.0, 0.0, -10.0, 0.0), false)
 				
 				Wait(1000)
 				if not carExist then
