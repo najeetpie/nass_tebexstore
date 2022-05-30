@@ -1,7 +1,7 @@
 DiscordWebhook = 'CHANGE_WEBHOOK'
 
 local redeemedCars = {}
-
+local shouldStop = false
 ESX = nil
 QBCore = nil
 if Config.Framework == "ESX" then
@@ -14,19 +14,31 @@ end
 
 
 
-
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
+		local tebexConvar = GetConvar('sv_tebexSecret', '')
+		if tebexConvar == '' or tebexConvar == nil then
+			print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+			print('^1/////////////////////////////////^4Nass Tebex Store: Tebex Secret Missing.^1/////////////////////////////////')
+			print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+			print('nass_tebexstore: Tebex Secret Missing please set in server.cfg and try again. Script will not work.')
+			shouldStop = true
+		end
 		if Config.DiscordLogs then
 			SendToDiscord('Nass Tebex Store', '**Status:** *ONLINE*', 3066993)
 		else
-			print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-			print('^1/////////////////////////////////^4Nass Tebex Store: Webhook DISABLED.^1/////////////////////////////////')
-			print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+			print('Webhook Disabled')
 		end
 	end
 end)
 
+CreateThread(function()
+	Wait(1000)
+	if shouldStop then
+		print("Stopping nass_tebexstore")
+		StopResource(GetCurrentResourceName())
+	end
+end)
 
 
 --Real code below
@@ -128,7 +140,7 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 					end
 				end
 			else
-				TriggerClientEvent('nass_tebexstore:notify', source, "You have entered an invalid code")
+				TriggerClientEvent('nass_tebexstore:notify', source, "Code is currently invalid, if you have just purchased please try this code again in a few minutes")
 			end
 		end)
 	elseif Config.Framework == "QB" then
@@ -161,7 +173,7 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 						end
 					end
 				else
-					TriggerClientEvent('nass_tebexstore:notify', source, "You have entered an invalid code")
+					TriggerClientEvent('nass_tebexstore:notify', source, "Code is currently invalid, if you have just purchased please try this code again in a few minutes")
 				end
 			end)
 		end
@@ -205,28 +217,29 @@ RegisterCommand('purchase_package_tebex', function(source, args)
 	end
 end)
 
-
 RegisterServerEvent('nass_tebexstore:setVehicle')
 AddEventHandler('nass_tebexstore:setVehicle', function (vehicleProps)
 	if Config.Framework == "ESX" then
 		local xPlayer = ESX.GetPlayerFromId(source)
-		MySQL.Async.execute('INSERT INTO owned_vehicles (owner, plate, vehicle) VALUES (@owner, @plate, @vehicle)',
+		MySQL.Async.execute('INSERT INTO owned_vehicles (owner, plate, vehicle, state) VALUES (@owner, @plate, @vehicle, @state)',
 		{
 			['@owner']   = xPlayer.identifier,
 			['@plate']   = vehicleProps.plate,
 			['@vehicle'] = json.encode(vehicleProps),
+			['@state'] = 1,
 		}, function ()
 			if Config.DiscordLogs then
 				SendToDiscord('Vehicle Redeemed', GetPlayerName(source)..' redeemed their car!', 15158332)
 			end
-	end)
+		end)
 	elseif Config.Framework == "QB" then
 		local player = QBCore.Functions.GetPlayer(source)
-		MySQL.Async.execute('INSERT INTO player_vehicles (citizenid, plate, vehicle) VALUES (@citizenid, @plate, @vehicle)',
+		MySQL.Async.execute('INSERT INTO player_vehicles (citizenid, plate, vehicle, state) VALUES (@citizenid, @plate, @vehicle,, @state)',
 		{
 			['@citizenid']   = player.PlayerData.citizenid,
 			['@plate']   = vehicleProps.plate,
 			['@vehicle'] = json.encode(vehicleProps),
+			['@state'] = 1,
 		}, function ()
 			if Config.DiscordLogs then
 				SendToDiscord('Vehicle Redeemed', GetPlayerName(source)..' redeemed their car!', 15158332)

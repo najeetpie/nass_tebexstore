@@ -1,5 +1,13 @@
 ESX = nil
 QBCore = nil
+local NumberCharset = {}
+local Charset = {}
+
+for i = 48,  57 do table.insert(NumberCharset, string.char(i)) end
+
+for i = 65,  90 do table.insert(Charset, string.char(i)) end
+for i = 97, 122 do table.insert(Charset, string.char(i)) end
+
 Citizen.CreateThread(function()
 	if Config.Framework == "ESX" then
 		while ESX == nil do
@@ -57,27 +65,50 @@ generatePlate = function()
 end
 
 
+function GetRandomNumber(length)
+	Wait(0)
+	if length > 0 then
+		return GetRandomNumber(length - 1) .. NumberCharset[math.random(1, #NumberCharset)]
+	else
+		return ''
+	end
+end
+
+function GetRandomLetter(length)
+	Wait(0)
+	if length > 0 then
+		return GetRandomLetter(length - 1) .. Charset[math.random(1, #Charset)]
+	else
+		return ''
+	end
+end
+
+
 RegisterNetEvent('nass_tebexstore:spawnveh')
 AddEventHandler('nass_tebexstore:spawnveh', function(model)
+	
 	if Config.Framework == "ESX" then
 		ESX.TriggerServerCallback('nass_tebexstore:redeemCheck', function(isLegit)
+			
 			if isLegit then
+				
 				local carExist  = false
 	
-				ESX.Game.SpawnVehicle(model, vector3(0.0, 0.0, -10.0), 0.0, function(vehicle) --get vehicle info
+				ESX.Game.SpawnVehicle(model, GetEntityCoords(GetPlayerPed(-1)) - vector3(0.0, 0.0, 10.0), 0.0, function(vehicle) --get vehicle info
 					if DoesEntityExist(vehicle) then
 						carExist = true
 						SetEntityVisible(vehicle, false, false)
 						SetEntityCollision(vehicle, false)
 						
 						local newPlate     = generatePlate()
+						
 						local vehicleProps = ESX.Game.GetVehicleProperties(vehicle)
 						vehicleProps.plate = newPlate
 						TriggerServerEvent('nass_tebexstore:setVehicle', vehicleProps)
+						
 						ESX.Game.DeleteVehicle(vehicle)	
-								
-					end		
-				end)
+					end	
+				end, false)
 				
 				Wait(1000)
 				if not carExist then
