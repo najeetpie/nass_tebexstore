@@ -30,8 +30,6 @@ This resource was created for servers to connect their Tebex stores to their Fiv
 
 
 ## Extra Information
- Current Version is only able to support 1 package purchase at a time. Looking into ways to fix this in the future.
- 
  Please leave any issues you may have here on github
 
 # Support
