@@ -114,31 +114,40 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 		local xName = xPlayer.getName()
 		MySQL.Async.fetchAll('SELECT * FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result)
 			if result[1] then
-				local packagename = result[1].packagename
-				for k,v in pairs (Config.Packages) do
-					if v.PackageName == packagename then
-						for i=1, #v.Items, 1 do
-							local counter = v.Items[i]
-							if counter.type == 'item' then
-								xPlayer.addInventoryItem(counter.name, counter.amount)
-							elseif counter.type == 'weapon' then
-								xPlayer.addWeapon(counter.name, counter.amount)
-							elseif counter.type == 'account' then
-								xPlayer.addAccountMoney(counter.name, counter.amount)
-							elseif counter.type == 'car' then
-								redeemedCars[xPlayer.identifier] = counter.model
-								TriggerClientEvent('nass_tebexstore:spawnveh', source, counter.model)
+				local packs = json.decode(result[1].packagename)
+				for j, i in pairs (packs) do
+					local packagename = i
+					local showMsg = true
+					for k,v in pairs (Config.Packages) do
+						if v.PackageName == i then
+							for i=1, #v.Items, 1 do
+								local counter = v.Items[i]
+								if counter.type == 'item' then
+									xPlayer.addInventoryItem(counter.name, counter.amount)
+								elseif counter.type == 'weapon' then
+									xPlayer.addWeapon(counter.name, counter.amount)
+								elseif counter.type == 'account' then
+									xPlayer.addAccountMoney(counter.name, counter.amount)
+								elseif counter.type == 'car' then
+									redeemedCars[xPlayer.identifier] = counter.model
+									TriggerClientEvent('nass_tebexstore:spawnveh', source, counter.model)
+								end
+								
+								Wait(100)
 							end
-							MySQL.Async.fetchAll('DELETE FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result) end)
-							Wait(100)
-						end
-	
-						TriggerClientEvent('nass_tebexstore:notify', source, "You have successfully redeemed a code for: " .. encode)
-						if Config.DiscordLogs then
-							SendToDiscord('Code Redeemed', '**Package Name: **'..packagename..'\n**Character Name: **'..xName..'\n**Identifier: **'..xPlayer.identifier, 3066993)
+		
+							TriggerClientEvent('nass_tebexstore:notify', source, "You have successfully redeemed a code for: " .. encode)
+							if Config.DiscordLogs then
+								SendToDiscord('Code Redeemed', '**Package Name: **'..packagename..'\n**Character Name: **'..xName..'\n**Identifier: **'..xPlayer.identifier, 3066993)
+							end
+							showMsg = false
 						end
 					end
+					if showMsg then
+						TriggerClientEvent('nass_tebexstore:notify', source, "The "..packagename.." package is not configured by the server owner. Please contact the admin team to fix this.")
+					end
 				end
+				MySQL.Async.fetchAll('DELETE FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result) end)
 			else
 				TriggerClientEvent('nass_tebexstore:notify', source, "Code is currently invalid, if you have just purchased please try this code again in a few minutes")
 			end
@@ -149,34 +158,43 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 		if player then
 			MySQL.Async.fetchAll('SELECT * FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result)
 				if result[1] then
-					local packagename = result[1].packagename
-					for k,v in pairs (Config.Packages) do
-						if v.PackageName == packagename then
-							for i=1, #v.Items, 1 do
-								local counter = v.Items[i]
-								if counter.type == 'item' or counter.type == 'weapon' then
-									player.Functions.AddItem(counter.name, counter.amount)
-								elseif counter.type == 'account' then
-									player.Functions.AddMoney(counter.name, counter.amount, "server-donation")
-								elseif counter.type == 'car' then
-									redeemedCars[player.PlayerData.citizenid] = counter.model
-									TriggerClientEvent('nass_tebexstore:spawnveh', source, counter.model)
+					local packs = json.decode(result[1].packagename)
+					for j, i in pairs (packs) do
+						local packagename = i
+						local showMsg = true
+						for k,v in pairs (Config.Packages) do
+							if v.PackageName == i then
+								for i=1, #v.Items, 1 do
+									local counter = v.Items[i]
+									if counter.type == 'item' or counter.type == 'weapon' then
+										player.Functions.AddItem(counter.name, counter.amount)
+									elseif counter.type == 'account' then
+										player.Functions.AddMoney(counter.name, counter.amount, "server-donation")
+									elseif counter.type == 'car' then
+										redeemedCars[player.PlayerData.citizenid] = counter.model
+										TriggerClientEvent('nass_tebexstore:spawnveh', source, counter.model)
+									end
+									
+									Wait(100)
 								end
-								MySQL.Async.fetchAll('DELETE FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result) end)
-								Wait(100)
-							end
-		
-							TriggerClientEvent('nass_tebexstore:notify', source, "You have successfully redeemed a code for: " .. encode)
-							if Config.DiscordLogs then
-								SendToDiscord('Code Redeemed', '**Package Name: **'..packagename..'\n**Identifier: **'..player.PlayerData.citizenid, 3066993)
+			
+								TriggerClientEvent('nass_tebexstore:notify', source, "You have successfully redeemed a code for: " .. encode)
+								if Config.DiscordLogs then
+									SendToDiscord('Code Redeemed', '**Package Name: **'..packagename..'\n**Character Name: **'..xName..'\n**Identifier: **'..player.PlayerData.citizenid, 3066993)
+								end
+								showMsg = false
 							end
 						end
+						if showMsg then
+							TriggerClientEvent('nass_tebexstore:notify', source, "The "..packagename.." package is not configured by the server owner. Please contact the admin team to fix this.")
+						end
 					end
+					MySQL.Async.fetchAll('DELETE FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result) end)
 				else
 					TriggerClientEvent('nass_tebexstore:notify', source, "Code is currently invalid, if you have just purchased please try this code again in a few minutes")
 				end
 			end)
-		end
+		end	
 	end
 end)
 
@@ -186,29 +204,61 @@ RegisterCommand('purchase_package_tebex', function(source, args)
 	if source == 0 then
 		local dec = json.decode(args[1])
 		local tbxid = dec.transid
-		print(tbxid)
-		local packagename = dec.packagename
-		MySQL.Async.execute("INSERT INTO codes(code,packagename,amount) VALUES (@code,@packagename,@amount)", {
-			["@code"] = tbxid,
-			["@packagename"] = packagename,
-			["@amount"] = 1
-		}, function(rowsChanged)
-				if rowsChanged>0 then
-					if Config.DiscordLogs then
-						SendToDiscord('Purchase', '`'..packagename..'` was just purchased and inserted into the database under redeem code: `'..tbxid..'`.', 1752220)
+		local packTab = {}
+		MySQL.Async.fetchAll('SELECT * FROM codes WHERE code = @playerCode', {['@playerCode'] = tbxid}, function(result)
+			if result[1] then
+				local packagetable = json.decode(result[1].packagename)
+				table.insert(packagetable, dec.packagename)
+
+				MySQL.Async.execute('UPDATE codes SET packagename = @packagename WHERE code = @code', {
+					["@code"] = tbxid,
+					["@packagename"] = json.encode(packagetable),
+
+				}, function(rowsChanged)
+					if rowsChanged>0 then
+						if Config.DiscordLogs then
+							SendToDiscord('Purchase', '`'..dec.packagename..'` was just purchased and inserted into the database under redeem code: `'..tbxid..'`.', 1752220)
+						end
+						print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+						print('^3//////////////////////^2Purchase '..tbxid..' was succesfully inserted into the database.^3//////////////////////')
+						print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+					else
+						print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+						print('^1///////////^4Purchase '..tbxid..' was not inserted into the database please check for errors.^1///////////')
+						print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+						if Config.DiscordLogs then
+							SendToDiscord('Error', '`'..tbxid..'` was not inserted into database. Please check for errors!', 15158332)
+						end
 					end
-					print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-					print('^3//////////////////////^2Purchase '..tbxid..' was succesfully inserted into the database.^3//////////////////////')
-					print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-				else
-					print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-					print('^1///////////^4Purchase '..tbxid..' was not inserted into the database please check for errors.^1///////////')
-					print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-					if Config.DiscordLogs then
-						SendToDiscord('Error', '`'..tbxid..'` was not inserted into database. Please check for errors!', 15158332)
-					end
-				end
-		end)
+				end)
+
+			else
+				table.insert(packTab, dec.packagename)
+				--table.insert(packTab, {dec.packagename})
+				MySQL.Async.execute("INSERT INTO codes(code,packagename,amount) VALUES (@code,@packagename,@amount)", {
+					["@code"] = tbxid,
+					["@packagename"] = json.encode(packTab),
+					["@amount"] = 1
+				}, function(rowsChanged)
+						if rowsChanged>0 then
+							if Config.DiscordLogs then
+								SendToDiscord('Purchase', '`'..dec.packagename..'` was just purchased and inserted into the database under redeem code: `'..tbxid..'`.', 1752220)
+							end
+							print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+							print('^3//////////////////////^2Purchase '..tbxid..' was succesfully inserted into the database.^3//////////////////////')
+							print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+						else
+							print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+							print('^1///////////^4Purchase '..tbxid..' was not inserted into the database please check for errors.^1///////////')
+							print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+							if Config.DiscordLogs then
+								SendToDiscord('Error', '`'..tbxid..'` was not inserted into database. Please check for errors!', 15158332)
+							end
+						end
+				end)
+				Wait(5000)
+			end
+		end)	
 	else
 		print(GetPlayerName(source)..' tried to give themself a donation code.')
 		if Config.DiscordLogs then
