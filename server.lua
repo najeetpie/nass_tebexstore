@@ -235,10 +235,9 @@ RegisterCommand('purchase_package_tebex', function(source, args)
 			else
 				table.insert(packTab, dec.packagename)
 				--table.insert(packTab, {dec.packagename})
-				MySQL.Async.execute("INSERT INTO codes(code,packagename,amount) VALUES (@code,@packagename,@amount)", {
+				MySQL.Async.execute("INSERT INTO codes(code,packagename) VALUES (@code,@packagename)", {
 					["@code"] = tbxid,
-					["@packagename"] = json.encode(packTab),
-					["@amount"] = 1
+					["@packagename"] = json.encode(packTab)
 				}, function(rowsChanged)
 						if rowsChanged>0 then
 							if Config.DiscordLogs then
