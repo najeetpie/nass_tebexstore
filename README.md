@@ -24,12 +24,16 @@ This resource was created for servers to connect their Tebex stores to their Fiv
  - Press the settings icon on the right and change the command to `Execute the command even if the player is offline`
  - Press Update
 
+ - Depending on which garage system is being used, you mayhave to make your own modifications in the script's vehicle assignment code. `server.lua/line 270` in the `nass_tebexstore:setVehicle` event.
+
 ## Usage
 
 - Players must go ingame and do `/redeem [Transaction ID]` and they will recieve everything
 
 
 ## Extra Information
+
+
  Please leave any issues you may have here on github
 
 # Support
