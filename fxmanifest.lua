@@ -4,7 +4,7 @@ games { 'gta5' }
 
 author 'Nass#1411'
 description 'Nass Tebex system'
-version '1.3.1'
+version '1.3.2'
 
 client_script 'config.lua'
 client_script 'client.lua'
