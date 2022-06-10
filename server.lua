@@ -2,6 +2,7 @@ DiscordWebhook = 'CHANGE_WEBHOOK'
 
 local redeemedCars = {}
 local shouldStop = false
+local inProgress = false
 ESX = nil
 QBCore = nil
 if Config.Framework == "ESX" then
@@ -199,22 +200,47 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 end)
 
 
-
+ 
 RegisterCommand('purchase_package_tebex', function(source, args)
-	if source == 0 then
-		local dec = json.decode(args[1])
-		local tbxid = dec.transid
-		local packTab = {}
-		MySQL.Async.fetchAll('SELECT * FROM codes WHERE code = @playerCode', {['@playerCode'] = tbxid}, function(result)
-			if result[1] then
-				local packagetable = json.decode(result[1].packagename)
-				table.insert(packagetable, dec.packagename)
-
-				MySQL.Async.execute('UPDATE codes SET packagename = @packagename WHERE code = @code', {
-					["@code"] = tbxid,
-					["@packagename"] = json.encode(packagetable),
-
-				}, function(rowsChanged)
+    if source == 0 then
+        local dec = json.decode(args[1])
+        local tbxid = dec.transid
+        local packTab = {}
+        while inProgress do
+            Wait(1000)
+        end
+        inProgress = true
+        MySQL.Async.fetchAll('SELECT * FROM codes WHERE code = @playerCode', {['@playerCode'] = tbxid}, function(result)
+            if result[1] then
+                local packagetable = json.decode(result[1].packagename)
+                table.insert(packagetable, dec.packagename)
+                MySQL.Async.execute('UPDATE codes SET packagename = @packagename WHERE code = @code', {
+                    ["@code"] = tbxid,
+                    ["@packagename"] = json.encode(packagetable),
+ 
+                }, function(rowsChanged)
+                    if rowsChanged>0 then
+                        if Config.DiscordLogs then
+                            SendToDiscord('Purchase', '`'..dec.packagename..'` was just purchased and inserted into the database under redeem code: `'..tbxid..'`.', 1752220)
+                        end
+                        print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+                        print('^3//////////////////////^2Purchase '..tbxid..' was succesfully inserted into the database.^3//////////////////////')
+                        print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+                    else
+                        print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+                        print('^1///////////^4Purchase '..tbxid..' was not inserted into the database please check for errors.^1///////////')
+                        print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
+                        if Config.DiscordLogs then
+                            SendToDiscord('Error', '`'..tbxid..'` was not inserted into database. Please check for errors!', 15158332)
+                        end
+                    end
+                end)
+            else
+                table.insert(packTab, dec.packagename)
+                MySQL.Async.execute("INSERT INTO codes(code,packagename) VALUES (@code,@packagename)", {
+                    ["@code"] = tbxid,
+                    ["@packagename"] = json.encode(packTab)
+                }, function(rowsChanged)
 					if rowsChanged>0 then
 						if Config.DiscordLogs then
 							SendToDiscord('Purchase', '`'..dec.packagename..'` was just purchased and inserted into the database under redeem code: `'..tbxid..'`.', 1752220)
@@ -230,40 +256,16 @@ RegisterCommand('purchase_package_tebex', function(source, args)
 							SendToDiscord('Error', '`'..tbxid..'` was not inserted into database. Please check for errors!', 15158332)
 						end
 					end
-				end)
-
-			else
-				table.insert(packTab, dec.packagename)
-				--table.insert(packTab, {dec.packagename})
-				MySQL.Async.execute("INSERT INTO codes(code,packagename) VALUES (@code,@packagename)", {
-					["@code"] = tbxid,
-					["@packagename"] = json.encode(packTab)
-				}, function(rowsChanged)
-						if rowsChanged>0 then
-							if Config.DiscordLogs then
-								SendToDiscord('Purchase', '`'..dec.packagename..'` was just purchased and inserted into the database under redeem code: `'..tbxid..'`.', 1752220)
-							end
-							print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-							print('^3//////////////////////^2Purchase '..tbxid..' was succesfully inserted into the database.^3//////////////////////')
-							print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-						else
-							print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-							print('^1///////////^4Purchase '..tbxid..' was not inserted into the database please check for errors.^1///////////')
-							print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-							if Config.DiscordLogs then
-								SendToDiscord('Error', '`'..tbxid..'` was not inserted into database. Please check for errors!', 15158332)
-							end
-						end
-				end)
-				Wait(5000)
-			end
-		end)	
-	else
-		print(GetPlayerName(source)..' tried to give themself a donation code.')
-		if Config.DiscordLogs then
-			SendToDiscord('Attempted Exploit', GetPlayerName(source)..' tried to give themself a donation code!', 15158332)
-		end
-	end
+                end)
+            end
+            inProgress = false
+        end)    
+    else
+        print(GetPlayerName(source)..' tried to give themself a donation code.')
+        if Config.DiscordLogs then
+            SendToDiscord('Attempted Exploit', GetPlayerName(source)..' tried to give themself a donation code!', 15158332)
+        end
+    end
 end)
 
 RegisterServerEvent('nass_tebexstore:setVehicle')
@@ -283,7 +285,7 @@ AddEventHandler('nass_tebexstore:setVehicle', function (vehicleProps)
 		end)
 	elseif Config.Framework == "QB" then
 		local player = QBCore.Functions.GetPlayer(source)
-		MySQL.Async.execute('INSERT INTO player_vehicles (citizenid, plate, vehicle, state) VALUES (@citizenid, @plate, @vehicle, @state)',
+		MySQL.Async.execute('INSERT INTO player_vehicles (citizenid, plate, vehicle, state) VALUES (@citizenid, @plate, @vehicle,, @state)',
 		{
 			['@citizenid']   = player.PlayerData.citizenid,
 			['@plate']   = vehicleProps.plate,
