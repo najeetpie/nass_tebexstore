@@ -285,7 +285,7 @@ AddEventHandler('nass_tebexstore:setVehicle', function (vehicleProps)
 		end)
 	elseif Config.Framework == "QB" then
 		local player = QBCore.Functions.GetPlayer(source)
-		MySQL.Async.execute('INSERT INTO player_vehicles (citizenid, plate, vehicle, state) VALUES (@citizenid, @plate, @vehicle,, @state)',
+		MySQL.Async.execute('INSERT INTO player_vehicles (citizenid, plate, vehicle, state) VALUES (@citizenid, @plate, @vehicle, @state)',
 		{
 			['@citizenid']   = player.PlayerData.citizenid,
 			['@plate']   = vehicleProps.plate,
