@@ -25,9 +25,7 @@ AddEventHandler('onResourceStart', function(resource)
 			print('nass_tebexstore: Tebex Secret Missing please set in server.cfg and try again. Script will not work.')
 			shouldStop = true
 		end
-		if Config.DiscordLogs then
-			SendToDiscord('Nass Tebex Store', '**Status:** *ONLINE*', 3066993)
-		else
+		if not Config.DiscordLogs then
 			print('Webhook Disabled')
 		end
 	end
