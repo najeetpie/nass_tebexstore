@@ -65,7 +65,8 @@ end
 
 if Config.Framework == "ESX" then
 	ESX.RegisterServerCallback('nass_tebexstore:redeemCheck', function(source, cb, model)
-		local xPlayer = ESX.GetPlayerFromId(source)
+		local src = source
+		local xPlayer = ESX.GetPlayerFromId(src)
 		if redeemedCars[xPlayer.identifier] ~= nil then
 			if redeemedCars[xPlayer.identifier] == model then
 				cb(true)
@@ -83,10 +84,9 @@ if Config.Framework == "ESX" then
 	end)
 elseif Config.Framework == "QB" then
 	QBCore.Functions.CreateCallback('nass_tebexstore:redeemCheck', function(source, cb, model)
-		local player = QBCore.Functions.GetPlayer(source)
+		local src = source
+		local player = QBCore.Functions.GetPlayer(src)
 		if player then
-			
-
 			if redeemedCars[player.PlayerData.citizenid] ~= nil then
 				if redeemedCars[player.PlayerData.citizenid] == model then
 					cb(true)
@@ -99,7 +99,7 @@ elseif Config.Framework == "QB" then
 				if Config.DiscordLogs then
 					SendToDiscord('Attempted Exploit Detected!', '**Identifier: **'..player.PlayerData.citizenid..'\n**Comments:** Player has attempted to trigger the spawn vehicle event without a redemption code.', 3066993)
 				end
-				QBCore.Functions.Kick(source, 'Nice try')
+				QBCore.Functions.Kick(src, 'Nice try')
 				cb(false)
 			end
 		end
@@ -109,9 +109,10 @@ end
 
 
 RegisterCommand('redeem', function(source, args, rawCommand)
+	local src = source
 	if Config.Framework == "ESX" then
 		local encode = rawCommand:sub(8)
-		local xPlayer = ESX.GetPlayerFromId(source)
+		local xPlayer = ESX.GetPlayerFromId(src)
 		local xName = xPlayer.getName()
 		MySQL.Async.fetchAll('SELECT * FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result)
 			if result[1] then
@@ -131,13 +132,13 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 									xPlayer.addAccountMoney(counter.name, counter.amount)
 								elseif counter.type == 'car' then
 									redeemedCars[xPlayer.identifier] = counter.model
-									TriggerClientEvent('nass_tebexstore:spawnveh', source, counter.model)
+									TriggerClientEvent('nass_tebexstore:spawnveh', src, counter.model)
 								end
 								
 								Wait(100)
 							end
 		
-							TriggerClientEvent('nass_tebexstore:notify', source, "You have successfully redeemed a code for: " .. encode)
+							TriggerClientEvent('nass_tebexstore:notify', src, "You have successfully redeemed a code for: " .. encode)
 							if Config.DiscordLogs then
 								SendToDiscord('Code Redeemed', '**Package Name: **'..packagename..'\n**Character Name: **'..xName..'\n**Identifier: **'..xPlayer.identifier, 3066993)
 							end
@@ -145,17 +146,17 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 						end
 					end
 					if showMsg then
-						TriggerClientEvent('nass_tebexstore:notify', source, "The "..packagename.." package is not configured by the server owner. Please contact the admin team to fix this.")
+						TriggerClientEvent('nass_tebexstore:notify', src, "The "..packagename.." package is not configured by the server owner. Please contact the admin team.")
 					end
 				end
 				MySQL.Async.fetchAll('DELETE FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result) end)
 			else
-				TriggerClientEvent('nass_tebexstore:notify', source, "Code is currently invalid, if you have just purchased please try this code again in a few minutes")
+				TriggerClientEvent('nass_tebexstore:notify', src, "Code is currently invalid, if you have just purchased please try this code again in a few minutes")
 			end
 		end)
 	elseif Config.Framework == "QB" then
 		local encode = rawCommand:sub(8)
-		local player = QBCore.Functions.GetPlayer(source)
+		local player = QBCore.Functions.GetPlayer(src)
 		if player then
 			MySQL.Async.fetchAll('SELECT * FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result)
 				if result[1] then
@@ -173,13 +174,13 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 										player.Functions.AddMoney(counter.name, counter.amount, "server-donation")
 									elseif counter.type == 'car' then
 										redeemedCars[player.PlayerData.citizenid] = counter.model
-										TriggerClientEvent('nass_tebexstore:spawnveh', source, counter.model)
+										TriggerClientEvent('nass_tebexstore:spawnveh', src, counter.model)
 									end
 									
 									Wait(100)
 								end
 			
-								TriggerClientEvent('nass_tebexstore:notify', source, "You have successfully redeemed a code for: " .. encode)
+								TriggerClientEvent('nass_tebexstore:notify', src, "You have successfully redeemed a code for: " .. encode)
 								if Config.DiscordLogs then
 									SendToDiscord('Code Redeemed', '**Package Name: **'..packagename..'\n**Character Name: **'..xName..'\n**Identifier: **'..player.PlayerData.citizenid, 3066993)
 								end
@@ -187,12 +188,12 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 							end
 						end
 						if showMsg then
-							TriggerClientEvent('nass_tebexstore:notify', source, "The "..packagename.." package is not configured by the server owner. Please contact the admin team to fix this.")
+							TriggerClientEvent('nass_tebexstore:notify', src, "The "..packagename.." package is not configured by the server owner. Please contact the admin team to fix this.")
 						end
 					end
 					MySQL.Async.fetchAll('DELETE FROM codes WHERE code = @playerCode', {['@playerCode'] = encode}, function(result) end)
 				else
-					TriggerClientEvent('nass_tebexstore:notify', source, "Code is currently invalid, if you have just purchased please try this code again in a few minutes")
+					TriggerClientEvent('nass_tebexstore:notify', src, "Code is currently invalid, if you have just purchased please try this code again in a few minutes")
 				end
 			end)
 		end	
@@ -202,7 +203,8 @@ end)
 
  
 RegisterCommand('purchase_package_tebex', function(source, args)
-    if source == 0 then
+	local src = source
+    if src == 0 then
         local dec = json.decode(args[1])
         local tbxid = dec.transid
         local packTab = {}
@@ -223,13 +225,7 @@ RegisterCommand('purchase_package_tebex', function(source, args)
                         if Config.DiscordLogs then
                             SendToDiscord('Purchase', '`'..dec.packagename..'` was just purchased and inserted into the database under redeem code: `'..tbxid..'`.', 1752220)
                         end
-                        print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-                        print('^3//////////////////////^2Purchase '..tbxid..' was succesfully inserted into the database.^3//////////////////////')
-                        print('^3////////////////////////////////////////////////////////////////////////////////////////////////////////////')
                     else
-                        print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
-                        print('^1///////////^4Purchase '..tbxid..' was not inserted into the database please check for errors.^1///////////')
-                        print('^1////////////////////////////////////////////////////////////////////////////////////////////////////////////')
                         if Config.DiscordLogs then
                             SendToDiscord('Error', '`'..tbxid..'` was not inserted into database. Please check for errors!', 15158332)
                         end
@@ -261,17 +257,18 @@ RegisterCommand('purchase_package_tebex', function(source, args)
             inProgress = false
         end)    
     else
-        print(GetPlayerName(source)..' tried to give themself a donation code.')
+        print(GetPlayerName(src)..' tried to give themself a donation code.')
         if Config.DiscordLogs then
-            SendToDiscord('Attempted Exploit', GetPlayerName(source)..' tried to give themself a donation code!', 15158332)
+            SendToDiscord('Attempted Exploit', GetPlayerName(src)..' tried to give themself a donation code!', 15158332)
         end
     end
 end)
 
 RegisterServerEvent('nass_tebexstore:setVehicle')
 AddEventHandler('nass_tebexstore:setVehicle', function (vehicleProps)
+	local src = source
 	if Config.Framework == "ESX" then
-		local xPlayer = ESX.GetPlayerFromId(source)
+		local xPlayer = ESX.GetPlayerFromId(src)
 		MySQL.Async.execute('INSERT INTO owned_vehicles (owner, plate, vehicle, state) VALUES (@owner, @plate, @vehicle, @state)',
 		{
 			['@owner']   = xPlayer.identifier,
@@ -280,11 +277,11 @@ AddEventHandler('nass_tebexstore:setVehicle', function (vehicleProps)
 			['@state'] = 1,
 		}, function ()
 			if Config.DiscordLogs then
-				SendToDiscord('Vehicle Redeemed', GetPlayerName(source)..' redeemed their car!', 15158332)
+				SendToDiscord('Vehicle Redeemed', GetPlayerName(src)..' redeemed their car!', 15158332)
 			end
 		end)
 	elseif Config.Framework == "QB" then
-		local player = QBCore.Functions.GetPlayer(source)
+		local player = QBCore.Functions.GetPlayer(src)
 		MySQL.Async.execute('INSERT INTO player_vehicles (citizenid, plate, vehicle, state) VALUES (@citizenid, @plate, @vehicle, @state)',
 		{
 			['@citizenid']   = player.PlayerData.citizenid,
@@ -293,7 +290,7 @@ AddEventHandler('nass_tebexstore:setVehicle', function (vehicleProps)
 			['@state'] = 1,
 		}, function ()
 			if Config.DiscordLogs then
-				SendToDiscord('Vehicle Redeemed', GetPlayerName(source)..' redeemed their car!', 15158332)
+				SendToDiscord('Vehicle Redeemed', GetPlayerName(src)..' redeemed their car!', 15158332)
 			end
 		end)
 	end
@@ -301,8 +298,9 @@ end)
 
 RegisterServerEvent('nass_tebexstore:carNotExist')
 AddEventHandler('nass_tebexstore:carNotExist', function()
+	local src = source
 	if Config.DiscordLogs then
-		SendToDiscord('Vehicle Error', GetPlayerName(source)..' couldn\'t redeemed their car!', 15158332)
+		SendToDiscord('Vehicle Error', GetPlayerName(src)..' couldn\'t redeemed their car!', 15158332)
 	end
 end)
 
