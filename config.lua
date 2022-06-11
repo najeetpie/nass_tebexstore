@@ -11,7 +11,7 @@ Config.Packages = {
             {
                 name = "money", --Item or account name depending on type specified below
                 amount = 2000000, -- Amount of item or money
-                type = 'account' --Three types: account, item, or weapon(If using items for weapons, use item for type) and car
+                type = 'account' --Four types: account, item, or weapon and car
             },
         },
     },	
@@ -21,7 +21,7 @@ Config.Packages = {
             {
                 name = "bandage", --Item or account name depending on type specified below
                 amount = 1, -- Amount of item or money
-                type = 'item' --Three types: account, item, or weapon(If using items for weapons, use item for type) and car
+                type = 'item' --Four types: account, item, or weapon and car
             },
         },
     },	
@@ -31,12 +31,12 @@ Config.Packages = {
             {
                 name = "weapon_pistol", --Item or account name depending on type specified below
                 amount = 51, -- Amount of item or money
-                type = 'weapon' --Three types: account, item, or weapon(If using items for weapons, use item for type) and car
+                type = 'weapon' --Four types: account, item, or weapon and car
             },
 		{
                 name = "weapon_assaultrifle_mk2", --Item or account name depending on type specified below
                 amount = 551, -- Amount of item or money
-                type = 'weapon' --Three types: account, item, or weapon(If using items for weapons, use item for type) and car
+                type = 'weapon' --Four types: account, item, or weapon and car
             },
 
         },
@@ -46,7 +46,7 @@ Config.Packages = {
         Items = {
             {
                 model = "zentorno", --Item or account name depending on type specified below
-                type = 'car' --Three types: account, item, or weapon(If using items for weapons, use item for type) and car
+                type = 'car' --Four types: account, item, or weapon and car
             },
 
         },
