@@ -309,7 +309,7 @@ local DISCORD_IMAGE = "https://i.imgur.com/Q72RWcB.png"
 
 function SendToDiscord(name, message, color)
 	if DiscordWebhook == "CHANGE_WEBHOOK" then
-		print("PLEASE CHANGE SERVER SIDE WEBHOOK")
+		print(message)
 	else
 		local connect = {
 		  	{
