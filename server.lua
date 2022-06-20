@@ -21,7 +21,7 @@ local function GetRandomLetter(length)
 end
 
 local function GeneratePlate()
-	local plate = GetRandomNumber(1) .. GetRandomLetter(2) .. GetRandomNumber(3) .. GetRandomLetter(2)
+	local plate = Config.SpaceInLicensePlate and GetRandomLetter(Config.LicensePlateLetters)..' '..GetRandomNumber(Config.LicensePlateNumbers) or GetRandomLetter(Config.LicensePlateLetters) .. GetRandomNumber(Config.LicensePlateNumbers)
 	local result = MySQL.scalar.await(plateQuery, {plate})
 	return result and GeneratePlate() or plate:upper()
 end
