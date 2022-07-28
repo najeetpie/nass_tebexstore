@@ -180,7 +180,7 @@ RegisterCommand('redeem', function(source, args, rawCommand)
 			
 								TriggerClientEvent('nass_tebexstore:notify', src, "You have successfully redeemed a code for: " .. encode)
 								if Config.DiscordLogs then
-									SendToDiscord('Code Redeemed', '**Package Name: **'..packagename..'\n**Character Name: **'..xName..'\n**Identifier: **'..player.PlayerData.citizenid, 3066993)
+									SendToDiscord('Code Redeemed', '**Package Name: **'..packagename..'\n**Character Name: **'..player.PlayerData.citizenid..'\n**Identifier: **'..player.PlayerData.citizenid, 3066993)
 								end
 								showMsg = false
 							end
