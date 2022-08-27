@@ -24,7 +24,7 @@ This resource was created for servers to connect their Tebex stores to their Fiv
  - Press the settings icon on the right and change the command to `Execute the command even if the player is offline`
  - Press Update
 
- - Depending on which garage system is being used, you mayhave to make your own modifications in the script's vehicle assignment code. `server.lua/line 270` in the `nass_tebexstore:setVehicle` event.
+ - Depending on which garage system is being used, you may have to make your own modifications in the script's vehicle assignment code. server.lua, line 229 or 240 depending on the framework, in the `nass_tebexstore:setVehicle` event.
 
 ## Usage
 
