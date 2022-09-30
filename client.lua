@@ -1,26 +1,25 @@
-local ESX = nil
-local QBCore = nil
+local Framework = nil
 
-CreateThread(function()
-	if Config.Framework == "ESX" then
-		ESX = exports.es_extended:getSharedObject()
-	elseif Config.Framework == "QB" then
-		QBCore = exports['qb-core']:GetCoreObject()
-	else
-		TriggerEvent("nass_tebexstore:notify", "nass_tebexstore: Framework in config is not set correctly.")
-	end
-end)
+if GetResourceState("es_extended") == "started" or GetResourceState("es_extended") == "starting" then
+	ESX = exports["es_extended"]:getSharedObject()
+    Framework = "ESX"
+elseif GetResourceState("qb-core") == "started" or GetResourceState("qb-core") == "starting" then
+	QBCore = exports['qb-core']:GetCoreObject()
+	Framework = "QB"
+else
+	TriggerEvent("nass_tebexstore:notify", "nass_tebexstore: No framework could be initialised.")
+end
 
 RegisterNetEvent('nass_tebexstore:notify', function(message)
-	if Config.Framework == "ESX" then
+	if Framework == "ESX" then
 		ESX.ShowNotification(message)
-	elseif Config.Framework == "QB" then
+	elseif Framework == "QB" then
 		QBCore.Functions.Notify(message, 'primary', 5000)
 	end
 end)
 
 RegisterNetEvent('nass_tebexstore:spawnveh', function(model)
-	if Config.Framework == "ESX" then
+	if Framework == "ESX" then
 		ESX.TriggerServerCallback('nass_tebexstore:redeemCheck', function(isLegit, newPlate)
 			if not isLegit or not newPlate then return end
 			local carExist = false
@@ -43,7 +42,7 @@ RegisterNetEvent('nass_tebexstore:spawnveh', function(model)
 			if carExist then return end
 			TriggerServerEvent('nass_tebexstore:carNotExist')
 		end, model)
-	elseif Config.Framework == "QB" then
+	elseif Framework == "QB" then
 		QBCore.Functions.TriggerCallback('nass_tebexstore:redeemCheck', function(isLegit, newPlate)
 			if not isLegit or not newPlate then return end
 			local carExist = false

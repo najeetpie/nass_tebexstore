@@ -1,11 +1,10 @@
 local DiscordWebhook = 'CHANGE_WEBHOOK'
 local redeemedCars = {}
 local inProgress = false
-local ESX = nil
-local QBCore = nil
 local NumberCharset = {}
 local Charset = {}
 local plateQuery = ''
+local Framework = nil
 
 for i = 48,  57 do table.insert(NumberCharset, string.char(i)) end
 
@@ -48,8 +47,19 @@ local function SendToDiscord(name, message, color)
 	end
 end
 
-if Config.Framework == "ESX" then
-	ESX = exports.es_extended:getSharedObject()
+MySQL.ready(function()
+	MySQL.Sync.execute(
+		"CREATE TABLE IF NOT EXISTS `codes` (" ..
+			"`code` varchar(50) NOT NULL DEFAULT '', " ..
+			"`packagename` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, " ..
+			"PRIMARY KEY (`code`) " ..
+		") ENGINE=InnoDB DEFAULT CHARSET=latin1; "
+	)
+end)
+
+if GetResourceState("es_extended") == "started" or GetResourceState("es_extended") == "starting" then
+	ESX = exports["es_extended"]:getSharedObject()
+    Framework = "ESX"
 
 	plateQuery = 'SELECT 1 FROM owned_vehicles WHERE plate = ?'
 
@@ -65,8 +75,9 @@ if Config.Framework == "ESX" then
 			xPlayer.kick('Nice try')
 		end
 	end)
-elseif Config.Framework == "QB" then
+elseif GetResourceState("qb-core") == "started" or GetResourceState("qb-core") == "starting" then
 	QBCore = exports['qb-core']:GetCoreObject()
+	Framework = "QB"
 
 	plateQuery = 'SELECT 1 FROM player_vehicles WHERE plate = ?'
 
@@ -101,7 +112,7 @@ AddEventHandler('onResourceStart', function(resource)
 end)
 
 RegisterCommand('redeem', function(source, _, rawCommand)
-	if Config.Framework == "ESX" then
+	if Framework == "ESX" then
 		local encode = rawCommand:sub(8)
 		local xPlayer = ESX.GetPlayerFromId(source)
 		local xName = xPlayer.getName()
@@ -143,7 +154,7 @@ RegisterCommand('redeem', function(source, _, rawCommand)
 				TriggerClientEvent('nass_tebexstore:notify', source, "Code is currently invalid, if you have just purchased please try this code again in a few minutes")
 			end
 		end)
-	elseif Config.Framework == "QB" then
+	elseif Framework == "QB" then
 		local encode = rawCommand:sub(8)
 		local player = QBCore.Functions.GetPlayer(source)
 		if player then
@@ -224,9 +235,9 @@ end, false)
 
 RegisterNetEvent('nass_tebexstore:setVehicle', function (vehicleProps)
 	local src = source
-	if Config.Framework == "ESX" then
+	if Framework == "ESX" then
 		local xPlayer = ESX.GetPlayerFromId(src)
-		MySQL.insert('INSERT INTO owned_vehicles (owner, plate, vehicle, state) VALUES (?, ?, ?, ?)',
+		MySQL.insert('INSERT INTO owned_vehicles (owner, plate, vehicle, stored) VALUES (?, ?, ?, ?)',
 		{
 			xPlayer.identifier,
 			vehicleProps.plate,
@@ -235,7 +246,7 @@ RegisterNetEvent('nass_tebexstore:setVehicle', function (vehicleProps)
 		}, function()
 			SendToDiscord('Vehicle Redeemed', GetPlayerName(src)..' redeemed their car!', 15158332)
 		end)
-	elseif Config.Framework == "QB" then
+	elseif Framework == "QB" then
 		local player = QBCore.Functions.GetPlayer(src)
 		MySQL.insert('INSERT INTO player_vehicles (citizenid, plate, vehicle, state) VALUES (?, ?, ?, ?)',
 		{

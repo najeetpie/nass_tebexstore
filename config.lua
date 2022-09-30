@@ -1,5 +1,4 @@
 Config = {}
-Config.Framework = "ESX" -- "ESX" or "QB"
 Config.DiscordLogs = true -- Set webhook in server.lua Line 1
 Config.SpaceInLicensePlate = false -- Set to true if you want a space in license plate for vehicle reward
 Config.LicensePlateLetters = 3 -- Amount of letters in plate for vehicle reward
