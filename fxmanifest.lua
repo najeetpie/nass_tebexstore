@@ -3,10 +3,7 @@ game 'gta5'
 lua54 'yes'
 use_experimental_fxv2_oal 'yes'
 
-authors {
-	'Nass#1411',
-	'!zRxnx#0001'
-}
+authors { 'Nass#1411', '!zRxnx#0001' }
 description 'Nass Tebex system - FORK'
 version '1.4.0'
 
