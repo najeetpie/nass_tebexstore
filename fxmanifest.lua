@@ -1,18 +1,25 @@
 fx_version 'cerulean'
 game 'gta5'
+lua54 'yes'
+use_experimental_fxv2_oal 'yes'
 
-author 'Nass#1411'
-description 'Nass Tebex system'
-version '1.3.2'
+authors {
+	'Nass#1411',
+	'!zRxnx#0001'
+}
+description 'Nass Tebex system - FORK'
+version '1.4.0'
 
-shared_script 'config.lua'
+shared_scripts {
+	'configuration/config.lua'
+}
 
-client_script 'client.lua'
+client_scripts {
+	'client/*.lua'
+}
 
 server_scripts {
 	'@oxmysql/lib/MySQL.lua',
-	'server.lua'
+	'configuration/serverconfig.lua',
+	'server/*.lua'
 }
-
-lua54 'yes'
-use_experimental_fxv2_oal 'yes'
