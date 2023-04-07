@@ -37,4 +37,4 @@ This resource was created for servers to connect their Tebex stores to their Fiv
  Please leave any issues you may have here on github
 
 # Support
-Join our discord <a href='https://discord.gg/XJFNyMy3Bv'>HERE</a> for additional scripts and support!
+Join our discord <a href='https://discord.gg/fz655NHeDq'>HERE</a> for additional scripts and support!
